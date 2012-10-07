@@ -4,3 +4,4 @@ target
 .settings
 *.txt
 tmp
+eclipse-build
