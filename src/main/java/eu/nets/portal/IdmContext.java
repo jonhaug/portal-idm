@@ -2,14 +2,19 @@ package eu.nets.portal;
 
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+
+
 
 public class IdmContext {
     private final JSONObject jsonObject;
 
     public IdmContext(String jsonString) {
+        if (StringUtils.isBlank(jsonString)) { jsonString="{}"; }
         try {
             JSONParser parser = new JSONParser();
             jsonObject = (JSONObject) parser.parse(jsonString);
