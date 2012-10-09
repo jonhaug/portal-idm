@@ -1,6 +1,7 @@
 package eu.nets.portal;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -40,10 +41,46 @@ public class IdmContextTest {
 
 
     @Test public void subset() {
-        String sctx1 = "";
-        String sctx2 = "";
+        String sctx1 = "{\"jon\": 44 }";
+        String sctx2 = "{\"jon\": 44, \"siri\": 55 }";
         IdmContext ctx1 = new IdmContext(sctx1);
         IdmContext ctx2 = new IdmContext(sctx2);
+        assertTrue(ctx1.subsetOf(ctx2));
+        assertTrue(ctx2.subsetOf(ctx2));
+        assertFalse(ctx2.subsetOf(ctx1));
+    }
+
+    @Test public void subsetWithArray() {
+        String sctx1 = "{\"jon\": [2, 5, \"Siri\"], \"Anne\": 9}";
+        String sctx2 = "{ \"Anne\": 9, \"Ingrid\": 10, \"jon\": [1,2,3,4,5,6,\"Siri\"]}";
+        IdmContext ctx1 = new IdmContext(sctx1);
+        IdmContext ctx2 = new IdmContext(sctx2);
+        assertTrue(ctx1.subsetOf(ctx2));
+        assertTrue(ctx2.subsetOf(ctx2));
+        assertFalse(ctx2.subsetOf(ctx1));
+        assertTrue(ctx1.equals(ctx1));
+    }
+
+    @Test public void subsetComplicated() {
+        String sctx1 = "{\"jon\": [2, 5, \"Siri\", {\"Erling\": [\"x\"]}], \"Anne\": {}}";
+        String sctx2 = "{ \"Anne\": {\"ss\": 4}, \"Ingrid\": 10, \"jon\": [{\"y\": 5, \"Erling\": [55, \"x\"]}, 1,2,3,4,5,6,\"Siri\"]}";
+        IdmContext ctx1 = new IdmContext(sctx1);
+        IdmContext ctx2 = new IdmContext(sctx2);
+        assertTrue(ctx1.subsetOf(ctx2));
+        assertTrue(ctx2.subsetOf(ctx2));
+        assertFalse(ctx2.subsetOf(ctx1));
+        assertTrue(ctx1.equals(ctx1));
+    }
+
+    @Test public void testWhildCard() {
+        String sctx1 = "{\"jon\": [2, 5, \"Siri\", {\"Erling\": [\"x\"]}], \"Anne\": {}}";
+        String sctx2 = "{\"jon\": \"*\", \"Anne\": {} }";
+        IdmContext ctx1 = new IdmContext(sctx1);
+        IdmContext ctx2 = new IdmContext(sctx2);
+        assertTrue(ctx1.subsetOf(ctx2));
+        assertTrue(ctx2.subsetOf(ctx2));
+        assertFalse(ctx2.subsetOf(ctx1));
+        assertTrue(ctx1.equals(ctx1));
     }
 
     /* *********************************************************************** */
