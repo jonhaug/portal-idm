@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -72,7 +73,7 @@ public class IdmContextTest {
         assertTrue(ctx1.equals(ctx1));
     }
 
-    @Test public void testWhildCard() {
+    @Test public void testWildCard() {
         String sctx1 = "{\"jon\": [2, 5, \"Siri\", {\"Erling\": [\"x\"]}], \"Anne\": {}}";
         String sctx2 = "{\"jon\": \"*\", \"Anne\": {} }";
         IdmContext ctx1 = new IdmContext(sctx1);
@@ -81,6 +82,37 @@ public class IdmContextTest {
         assertTrue(ctx2.subsetOf(ctx2));
         assertFalse(ctx2.subsetOf(ctx1));
         assertTrue(ctx1.equals(ctx1));
+    }
+
+    @Test public void testIntersect() {
+        String sctx1 = "{\"jon\": [2, 5, \"Siri\", {\"Erling\": [\"x\"]}], \"Anne\": {\"x\": 4, \"y\": 5}}";
+        String sctx2 = "{\"jon\": [5, 6, {\"Erling\": [\"x\"]}], \"Anne\": {\"x\": 4, \"y\": 6} }";
+        IdmContext ctx1 = new IdmContext(sctx1);
+        IdmContext ctx2 = new IdmContext(sctx2);
+        IdmContext ctxIntersect = ctx1.intersect(ctx2);
+//        System.out.println(ctxIntersect);
+        assertTrue(ctxIntersect.subsetOf(ctx1));
+        assertTrue(ctxIntersect.subsetOf(ctx2));
+        assertEquals(4L, ctxIntersect.getValue("Anne.x"));
+        List arr = (List) (ctxIntersect.getValue("jon"));
+        Map o = (Map) arr.get(1);
+        List arr2 = (List) o.get("Erling");
+        assertEquals("x", arr2.get(0));
+    }
+
+    @Test public void testunion() {
+        String sctx1 = "{\"jon\": [2, 5, \"Siri\", {\"Erling\": [\"x\"]}], \"Anne\": {\"x\": 4, \"y\": 5}}";
+        String sctx2 = "{\"jon\": [5, 6, {\"Erling\": [\"x\"]}], \"Anne\": {\"x\": 4, \"y\": 6} }";
+        IdmContext ctx1 = new IdmContext(sctx1);
+        IdmContext ctx2 = new IdmContext(sctx2);
+        IdmContext ctxIntersect = ctx1.union(ctx2);
+        System.out.println(ctxIntersect);
+        assertTrue(ctx1.subsetOf(ctxIntersect));
+        assertEquals(4L, ctxIntersect.getValue("Anne.x"));
+        List arr = (List) (ctxIntersect.getValue("jon"));
+        Map o = (Map) arr.get(3);
+        List arr2 = (List) o.get("Erling");
+        assertEquals("x", arr2.get(0));
     }
 
     /* *********************************************************************** */

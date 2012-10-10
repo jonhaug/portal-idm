@@ -57,11 +57,14 @@ public class IdmContext {
 	public IdmContext intersect(IdmContext ctx2) {
 	    return new IdmContext(objectIntersect(this.jsonObject,ctx2.jsonObject));
 	}
+	public IdmContext union(IdmContext ctx2) {
+	    return new IdmContext(objectUnion(this.jsonObject, ctx2.jsonObject));
+	}
     /**********************************************************************************/
 
-//	private boolean isEqual(Object o1, Object o2) {
-//	    return subset(o1,o2) && subset(o2,o1);
-//	}
+	private boolean isEqual(Object o1, Object o2) {
+	    return subset(o1,o2) && subset(o2,o1);
+	}
 	private boolean subset(Object o1, Object o2) {
 	    if (wildChar(o2)) { return true; }
 		else if (o1 instanceof JSONObject && o2 instanceof JSONObject) {
@@ -104,12 +107,12 @@ public class IdmContext {
 	    }
 		return true;
 	}
-//	private boolean member(Object o, JSONArray arr) {
-//	    for (Object o2: arr) {
-//	        if (isEqual(o, o2)) return true;
-//	    }
-//	    return false;
-//	}
+	private boolean member(Object o, JSONArray arr) {
+	    for (Object o2: arr) {
+	        if (isEqual(o, o2)) return true;
+	    }
+	    return false;
+	}
 
 	private Object intersect(Object o1, Object o2) {
         if (wildChar(o2)) { return o1; }
@@ -135,16 +138,75 @@ public class IdmContext {
             Object value2 = o2.get(key);
             if (value2 != null) {
                 Object result = intersect(value1, value2);
-                o.put(key, result);
+                if (result != null) {
+                    o.put(key, result);
+                }
             }
         }
         return o;
     }
 
     // Utterly, utterly hard
-    private Object listIntersect(JSONArray o1, JSONArray o2) {
-        return null;
+    @SuppressWarnings("unchecked")
+    private Object listIntersect(JSONArray list1, JSONArray list2) {
+        JSONArray newList = new JSONArray();
+        for (Object o: list1) {
+            if (member(o, list2)) {
+                newList.add(o);
+            }
+        }
+        return newList;
     }
 
+    private Object union(Object o1, Object o2) {
+        if (wildChar(o1)) { return o1; }
+        else if (wildChar(o2)) { return o2; }
+        else if (o1 instanceof JSONObject && o2 instanceof JSONObject) {
+            return objectUnion((JSONObject) o1, (JSONObject) o2);
+        // If simple object, o1 takes precedence.
+        } else if (o1 instanceof String || o1 instanceof Number) {
+            return o1;
+        } else if (o1 instanceof JSONArray && o2 instanceof JSONArray) {
+            return listUnion((JSONArray) o1, (JSONArray) o2);
+        }
+        return null;
+    }
+    @SuppressWarnings("unchecked")
+    private JSONObject objectUnion(JSONObject o1, JSONObject o2) {
+        JSONObject o = new JSONObject();
+        for (Object oEntry: o1.entrySet()) {
+            Entry<String,Object> entry = (Entry<String, Object>) oEntry;
+            String key = entry.getKey();
+            Object value1 = entry.getValue();
+            Object value2 = o2.get(key);
+            if (value2 != null) {
+                Object result = union(value1, value2);
+                if (result != null) {
+                    o.put(key, result);
+                }
+            } else {
+                o.put(key, value1);
+            }
+        }
+        for (Object oEntry: o2.entrySet()) {
+            Entry<String,Object> entry = (Entry<String, Object>) oEntry;
+            String key = entry.getKey();
+            Object value2 = entry.getValue();
+            Object value1 = o1.get(key);
+            if (value1 == null) { o.put(key, value2); }
+        }
+        return o;
+    }
+    @SuppressWarnings("unchecked")
+    private Object listUnion(JSONArray list1, JSONArray list2) {
+        JSONArray newList = new JSONArray();
+        newList.addAll(list1);
+        for (Object o: list2) {
+            if (!member(o,list1)) {
+                newList.add(o);
+            }
+        }
+        return newList;
+    }
 
 }
