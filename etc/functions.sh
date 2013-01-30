@@ -3,7 +3,7 @@
 # Convert to/from json and pretty print.
 # Currently only for property key/values in az
 
-EXAMPLE='{"a":"hello","b":"goodbye"}'
+EXAMPLE='{"a":"hello","b":"goodbye","c":"death"}'
 
 pretty-print() {
     local json=$1
