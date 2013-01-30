@@ -1,0 +1,86 @@
+#!/bin/bash
+
+VERBOSE=0
+QUIET=0
+DRYRUN=0
+URL_PREFIX="http://localhost:3002/az"
+#PROGRAM=${0##*/}
+PROGRAM=$0
+
+USAGE="Usage: \"$PROGRAM [-hqvfsd] CONTEXT_PATH\""
+
+OPTSTRING="qvfsdh"
+
+while getopts $OPTSTRING OPTION; do
+    case "$OPTION" in
+	h)
+	    echo "$USAGE"
+	    cat <<EOF
+
+Fetch or set property values in the portal az database.
+E.g. "$PROGRAM $URL_PREFIX/x/1/y/2" will retrieve
+and show the property y,v of 1,2 (or something).
+
+  -h     This text
+  -q     Quiet mode
+  -v     Verbose mode
+  -f     Force  (not implemented)
+  -s     Set/create (not implemented)
+  -d     Dry run
+
+EOF
+	    exit 0;
+	    ;;
+	v)
+	    VERBOSE=1
+	    QUIET=0
+	    ;;
+
+	q)
+	    VERBOSE=0
+	    QUIET=1
+	    ;;
+
+	s)
+	    echo "Set/create not implemented"
+	    exit 0
+	    ;;
+	
+	f)
+	    echo "Force not implemented"
+	    exit 0
+	    ;;
+
+	d)
+	    DRYRUN=1
+	    ;;
+
+	*)
+	    echo
+	    echo "$USAGE"
+	    echo "Try \"$PROGRAM -h\""
+	    echo
+	    exit 0
+	    ;;
+    esac
+done
+
+vout() {
+    if [ "$VERBOSE" -eq 1 ]; then
+	echo $@
+    fi
+}
+out() {
+    if [ "$QUIET" -eq 0 ]; then
+	echo $@
+    fi
+}
+
+shift $((OPTIND-1))
+
+vout "DRYRUN=$DRYRUN"
+vout "VERBOSE=$VERBOSE"
+vout "QUIET=$QUIET"
+vout "PARAMETER=$@"
+
+
