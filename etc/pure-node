@@ -1,4 +1,16 @@
 #!/usr/bin/node
 
-var x=3
-console.log('Hello world: ' + x);
+var node=process.argv.shift();
+var thisProgram=process.argv.shift();
+
+var val=process.argv.shift();
+while (val.charAt(0) == '-') { // Option
+    if (val == '-h') { // Help
+    } else if (val == '-q') { // Quiet mode
+    } else {
+	console.log('Illegal option: "' + v + '"');
+	process.exit(code=1);
+    }
+}
+
+var command=val;
