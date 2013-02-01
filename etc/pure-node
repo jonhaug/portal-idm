@@ -1,0 +1,4 @@
+#!/usr/bin/node
+
+var x=3
+console.log('Hello world: ' + x);
